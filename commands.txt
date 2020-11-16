@@ -1,0 +1,10 @@
+docker exec -it haproxysql_consul_1 /bin/bash
+docker exec -it haproxysql_proxysql_1 /bin/bash
+docker exec -it haproxysql_mysql_1 /bin/bash
+docker exec -it haproxysql_mysql_2 /bin/bash
+
+
+mysql -h 127.0.0.1 -u sandbox -psandbox -P 3306
+
+docker exec -it haproxysql_proxysql_1 /bin/mysql -h 127.0.0.1 -u admin -padmin -P 6032
+

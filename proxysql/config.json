@@ -1,0 +1,42 @@
+{
+  "datacenter": "proxysql-sandbox",
+  "data_dir": "/tmp/consul",
+  "log_level": "warn",
+  "enable_script_checks": true,
+  "disable_update_check": true,
+  "node_meta":
+  {
+    "service": "proxysql"
+  },
+  "retry_join":
+  [
+    "172.16.238.150"
+  ],
+  "services":[
+    {
+      "id":"proxysql",
+      "name":"proxysql",
+      "checks": [
+        {
+          "id":"port",
+          "name":"Listen on port 3306",
+          "tcp":"127.0.0.1:3306",
+          "interval":"3s",
+          "timeout":"1s"
+        }
+      ]
+    }
+  ],
+  "watches": [
+    {
+      "type": "key",
+      "key": "mysql/servers",
+      "args": ["/root/mysql-servers-handler.sh"]
+    },
+	{
+      "type": "key",
+      "key": "proxysql/servers",
+      "args": ["/root/proxysql-servers-handler.sh"]
+    }
+  ]
+}

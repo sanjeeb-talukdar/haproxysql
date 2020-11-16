@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  consul:
+    image: consul
+    build: consul
+    ports:
+      - "1234:8500"
+    expose:
+      - "8500"
+    networks:
+      internal:
+        ipv4_address: 172.16.238.150
+
+  mysql:
+    image: "mysql:5.7"
+    build: mysql
+    depends_on:
+      - consul
+    networks:
+      - internal
+  
+  proxysql:
+    image: proxysql
+    build: proxysql
+    ports:
+      - "3306-3311:3306"
+      - "1235-1240:6032"
+      - "1245-1250:6080"
+    depends_on:
+      - mysql
+    networks:
+      - internal
+  
+networks:
+  internal:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.238.0/24

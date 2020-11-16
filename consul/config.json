@@ -1,0 +1,9 @@
+{
+  "datacenter": "proxysql-sandbox",
+  "data_dir": "/tmp/consul",
+  "log_level": "debug",
+  "bootstrap": true,
+  "server": true,
+  "enable_script_checks": true,
+  "disable_update_check": true
+}
