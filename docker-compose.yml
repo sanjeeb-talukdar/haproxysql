@@ -12,13 +12,60 @@ services:
       internal:
         ipv4_address: 172.16.238.150
 
-  mysql:
-    image: "mysql:5.7"
+  mysql-master:
+    image: 'mysql'
     build: mysql
+    ports:
+      - '1330:3306'
+    expose:
+      - "3306"
     depends_on:
       - consul
+    volumes:
+      - 'mysql_master_data:/bitnami/mysql/data'
+    environment:
+      - MYSQL_REPLICATION_MODE=master
+      - MYSQL_REPLICATION_USER=repl_user
+      - MYSQL_REPLICATION_PASSWORD=repl_password
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=tets-db
+    healthcheck:
+      test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
+      interval: 15s
+      timeout: 5s
+      retries: 6
     networks:
-      - internal
+      internal:
+        ipv4_address: 172.16.238.7
+ 
+  mysql-slave:
+    image: 'mysql'
+    build: mysql
+    ports:
+      - '1331:3306'
+    expose:
+      - "3306"
+    depends_on:
+      - consul
+    depends_on:
+      - mysql-master
+    environment:
+      - MYSQL_REPLICATION_MODE=slave
+      - MYSQL_REPLICATION_USER=repl_user
+      - MYSQL_REPLICATION_PASSWORD=repl_password
+      - MYSQL_MASTER_HOST=172.16.238.7
+      - MYSQL_MASTER_PORT_NUMBER=3306
+      - MYSQL_MASTER_ROOT_PASSWORD=root
+    healthcheck:
+      test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
+      interval: 15s
+      timeout: 5s
+      retries: 6
+    networks:
+      internal:
+        ipv4_address: 172.16.238.8
   
   proxysql:
     image: proxysql
@@ -26,9 +73,11 @@ services:
     ports:
       - "3306-3311:3306"
       - "1235-1240:6032"
-      - "1245-1250:6080"
+      - "2200-2220:6080"
     depends_on:
-      - mysql
+      - consul
+      - mysql-master
+      - mysql-slave
     networks:
       - internal
   
@@ -39,3 +88,7 @@ networks:
       driver: default
       config:
         - subnet: 172.16.238.0/24
+        
+volumes:
+  mysql_master_data:
+    driver: local

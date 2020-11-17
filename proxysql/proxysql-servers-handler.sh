@@ -3,24 +3,17 @@
 
 exec >> /root/proxysql-handler.log
 
-[ $# -ge 1 -a -f "$1" ] && INPUT="$1" || INPUT="-"
+IPS=$(curl --silent http://127.0.0.1:8500/v1/catalog/nodes | jq -r '.[] | select(.Meta.service == "proxysql") | .Address')
 
-JSON=$(cat $INPUT)
+LOCAL_IP=$(awk 'END{print $1}' /etc/hosts)
 
-if [[ -n "${JSON}" &&  "${JSON}" -eq "null" ]]
-then
-  echo "No data"
-  exit 1
-fi
-
-VALUES=$(echo $JSON | jq -r '.Value' | base64 --decode)
-ARRAY=(${VALUES//,/ })
-
-for IP in "${ARRAY[@]}"
+for IP in "${IPS[@]}"
 do
+  if [ "$IP" != "$LOCAL_IP" ]
+  then
   echo $IP
   mysql -h 127.0.0.1 -u admin -padmin -P 6032 --force --execute="
-    INSERT INTO proxysql_servers (
+    INSERT OR REPLACE INTO proxysql_servers (
       hostname,
       port,
       weight,
@@ -31,6 +24,7 @@ do
       0,
       'ProxySql Servers'
     );"
+  fi 
 done
 
 mysql -h 127.0.0.1 -u admin -padmin -P 6032 --execute="

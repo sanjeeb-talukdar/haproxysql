@@ -12,13 +12,6 @@
   [
     "172.16.238.150"
   ],
-  "watches": [
-    {
-      "type": "checks",
-      "state": "passing",
-      "handler": "/root/provisioning.sh"
-    }
-  ],
   "services":[
     {
       "id":"mysql",
