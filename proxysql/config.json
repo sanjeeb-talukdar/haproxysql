@@ -19,8 +19,8 @@
       "checks": [
         {
           "id":"port",
-          "name":"Listen on port 3306",
-          "tcp":"127.0.0.1:3306",
+          "name":"Listen on port 6032",
+          "tcp":"127.0.0.1:6032",
           "interval":"3s",
           "timeout":"1s"
         }
@@ -28,15 +28,10 @@
     }
   ],
   "watches": [
-    {
-      "type": "key",
-      "key": "mysql/servers",
-      "args": ["/root/mysql-servers-handler.sh"]
-    },
 	{
-      "type": "key",
-      "key": "proxysql/servers",
-      "args": ["/root/proxysql-servers-handler.sh"]
+      "type": "service",
+      "service": "proxysql",
+      "args": ["/root/proxysql-servers-handler.sh", "/root/mysql-servers-handler.sh"]
     }
   ]
 }

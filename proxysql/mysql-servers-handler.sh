@@ -3,24 +3,8 @@
 
 exec >> /root/mysql-handler.log
 
-[ $# -ge 1 -a -f "$1" ] && INPUT="$1" || INPUT="-"
-
-JSON=$(cat $INPUT)
-
-if [[ -n "${JSON}" &&  "${JSON}" -eq "null" ]]
-then
-  echo "No data"
-  exit 1
-fi
-
-VALUES=$(echo $JSON | jq -r '.Value' | base64 --decode)
-ARRAY=(${VALUES//,/ })
-
-for IP in "${ARRAY[@]}"
-do
-  echo $IP
-  mysql -h 127.0.0.1 -u admin -padmin -P 6032 --force --execute="
-    INSERT INTO mysql_servers (
+mysql -h 127.0.0.1 -u admin -padmin -P 6032 --force --execute="
+    INSERT OR REPLACE INTO mysql_servers (
       hostgroup_id,
       hostname,
       port,
@@ -28,12 +12,27 @@ do
       max_replication_lag
     ) VALUES (
       1,
-      '${IP}',
+      '172.16.238.7',
       3306,
       10,
       60
     );"
-done
+
+
+mysql -h 127.0.0.1 -u admin -padmin -P 6032 --force --execute="
+    INSERT OR REPLACE INTO mysql_servers (
+      hostgroup_id,
+      hostname,
+      port,
+      max_connections,
+      max_replication_lag
+    ) VALUES (
+      1,
+      '172.16.238.8',
+      3306,
+      10,
+      60
+    );"
 
 mysql -h 127.0.0.1 -u admin -padmin -P 6032 --execute="
   LOAD MYSQL SERVERS TO RUNTIME;

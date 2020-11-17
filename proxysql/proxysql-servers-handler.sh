@@ -3,24 +3,30 @@
 
 exec >> /root/proxysql-handler.log
 
-[ $# -ge 1 -a -f "$1" ] && INPUT="$1" || INPUT="-"
+set admin-cluster_username = 'user1'; 
+set admin-cluster_password = 'pass1';
+set admin-admin_credentials = 'admin:admin;user1:pass1;user2:pass2';
 
-JSON=$(cat $INPUT)
+mysql -h 127.0.0.1 -u admin -padmin -P 6032 --execute="
+  SAVE admin variables to DISK;
+  LOAD admin variables to RUNTIME;
+"
 
-if [[ -n "${JSON}" &&  "${JSON}" -eq "null" ]]
-then
-  echo "No data"
-  exit 1
-fi
+IPS=$(curl --silent http://127.0.0.1:8500/v1/catalog/nodes | jq -r '.[] | select(.Meta.service == "proxysql") | .Address')
 
-VALUES=$(echo $JSON | jq -r '.Value' | base64 --decode)
-ARRAY=(${VALUES//,/ })
+echo $IPS
 
-for IP in "${ARRAY[@]}"
+LOCAL_IP=$(awk 'END{print $1}' /etc/hosts)
+
+echo $LOCAL_IP
+
+for IP in "${IPS[@]}"
 do
+  if [ "$IP" != "$LOCAL_IP" ]
+  then
   echo $IP
   mysql -h 127.0.0.1 -u admin -padmin -P 6032 --force --execute="
-    INSERT INTO proxysql_servers (
+    INSERT OR REPLACE INTO proxysql_servers (
       hostname,
       port,
       weight,
@@ -31,9 +37,11 @@ do
       0,
       'ProxySql Servers'
     );"
+  fi 
 done
 
 mysql -h 127.0.0.1 -u admin -padmin -P 6032 --execute="
   LOAD PROXYSQL SERVERS TO RUNTIME;
   SAVE PROXYSQL SERVERS TO DISK;
 "
+
