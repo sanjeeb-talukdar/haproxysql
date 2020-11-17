@@ -22,9 +22,5 @@ if [[ "$1" = "/opt/bitnami/scripts/mysql/run.sh" ]]; then
     info "** MySQL setup finished! **"
 fi
 
-echo '[Entrypoint] Start consul agent.'
-consul agent -config-file=/etc/consul.d/config.json &
-echo '[Entrypoint] Start consul agent started!!'
-
 echo ""
 exec "$@"

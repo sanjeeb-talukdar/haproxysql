@@ -23,6 +23,7 @@ services:
       - consul
     volumes:
       - 'mysql_master_data:/bitnami/mysql/data'
+      - 'F:/proxysql/haproxysql/mysql/prebuildfs/opt/bitnami/mysql/conf/my_custom.cnf:/opt/bitnami/mysql/conf/my_custom.cnf:ro'
     environment:
       - MYSQL_REPLICATION_MODE=master
       - MYSQL_REPLICATION_USER=repl_user
@@ -51,6 +52,8 @@ services:
       - consul
     depends_on:
       - mysql-master
+    volumes:
+      - 'F:/proxysql/haproxysql/mysql/prebuildfs/opt/bitnami/mysql/conf/my_custom.cnf:/opt/bitnami/mysql/conf/my_custom.cnf:ro'
     environment:
       - MYSQL_REPLICATION_MODE=slave
       - MYSQL_REPLICATION_USER=repl_user
