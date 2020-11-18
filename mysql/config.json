@@ -12,19 +12,11 @@
   [
     "172.16.238.150"
   ],
-  "services":[
+  "watches": [
     {
-      "id":"mysql",
-      "name":"mysql",
-      "checks": [
-        {
-          "id":"port",
-          "name":"Listen on port 3306",
-          "tcp":"127.0.0.1:3306",
-          "interval":"3s",
-          "timeout":"1s"
-        }
-      ]
+      "type": "checks",
+      "state": "passing",
+      "handler": "/root/provisioning.sh"
     }
   ]
 }

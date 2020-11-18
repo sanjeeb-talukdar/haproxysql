@@ -28,10 +28,10 @@
     }
   ],
   "watches": [
-	{
-      "type": "service",
-      "service": "proxysql",
-      "args": ["/root/proxysql-servers-handler.sh", "/root/mysql-servers-handler.sh"]
+    {
+      "type": "key",
+      "key": "mysql/servers",
+      "args": ["/root/handler.sh"]
     }
   ]
 }

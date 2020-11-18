@@ -5,84 +5,57 @@ services:
     image: consul
     build: consul
     ports:
-      - "1234:8500"
+      - "12394:8500"
     expose:
       - "8500"
     networks:
       internal:
         ipv4_address: 172.16.238.150
 
-  mysql-master:
-    image: 'mysql'
+  orchestrator:
+    image: orchestrator
+    build: orchestrator
+    expose:
+      - "31456"
+    depends_on:
+      - mysql
+    networks:
+      internal:
+        ipv4_address: 172.16.238.200
+
+  mysql:
+    image: "mysql:5.7"
     build: mysql
-    ports:
-      - '1330:3306'
     expose:
       - "3306"
     depends_on:
       - consul
-    volumes:
-      - 'mysql_master_data:/bitnami/mysql/data'
-      - 'F:/proxysql/haproxysql/mysql/prebuildfs/opt/bitnami/mysql/conf/my_custom.cnf:/opt/bitnami/mysql/conf/my_custom.cnf:ro'
-    environment:
-      - MYSQL_REPLICATION_MODE=master
-      - MYSQL_REPLICATION_USER=repl_user
-      - MYSQL_REPLICATION_PASSWORD=repl_password
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_USER=user
-      - MYSQL_PASSWORD=password
-      - MYSQL_DATABASE=tets-db
-    healthcheck:
-      test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
-      interval: 15s
-      timeout: 5s
-      retries: 6
     networks:
-      internal:
-        ipv4_address: 172.16.238.7
- 
-  mysql-slave:
-    image: 'mysql'
-    build: mysql
-    ports:
-      - '1331:3306'
-    expose:
-      - "3306"
-    depends_on:
-      - consul
-    depends_on:
-      - mysql-master
-    volumes:
-      - 'F:/proxysql/haproxysql/mysql/prebuildfs/opt/bitnami/mysql/conf/my_custom.cnf:/opt/bitnami/mysql/conf/my_custom.cnf:ro'
-    environment:
-      - MYSQL_REPLICATION_MODE=slave
-      - MYSQL_REPLICATION_USER=repl_user
-      - MYSQL_REPLICATION_PASSWORD=repl_password
-      - MYSQL_MASTER_HOST=172.16.238.7
-      - MYSQL_MASTER_PORT_NUMBER=3306
-      - MYSQL_MASTER_ROOT_PASSWORD=root
-    healthcheck:
-      test: ['CMD', '/opt/bitnami/scripts/mysql/healthcheck.sh']
-      interval: 15s
-      timeout: 5s
-      retries: 6
-    networks:
-      internal:
-        ipv4_address: 172.16.238.8
+      - internal 
   
-  proxysql:
+  proxysql1:
     image: proxysql
     build: proxysql
-    ports:
-      - "3306-3311:3306"
-      - "1235-1240:6032"
-      - "2200-2220:6080"
+    expose:
+      - "6032"
+      - "6080"
     depends_on:
       - consul
-      - mysql-master
-      - mysql-slave
     networks:
-      - internal
+      internal:
+        ipv4_address: 172.16.238.2
+      
+  proxysql2:
+    image: proxysql
+    build: proxysql
+    expose:
+      - "6032"
+      - "6080"
+    depends_on:
+      - consul
+    networks:
+      internal:
+        ipv4_address: 172.16.238.3
   
 networks:
   internal:
@@ -90,7 +63,7 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 172.16.238.0/24
+        - subnet: 172.16.238.0/16
         
 volumes:
   mysql_master_data:
