@@ -18,7 +18,7 @@ services:
     expose:
       - "31456"
     depends_on:
-      - mysql
+      - consul
     networks:
       internal:
         ipv4_address: 172.16.238.200
@@ -29,7 +29,7 @@ services:
     expose:
       - "3306"
     depends_on:
-      - consul
+      - orchestrator
     networks:
       - internal 
   
@@ -40,7 +40,7 @@ services:
       - "6032"
       - "6080"
     depends_on:
-      - consul
+      - mysql
     networks:
       internal:
         ipv4_address: 172.16.238.2
@@ -52,7 +52,7 @@ services:
       - "6032"
       - "6080"
     depends_on:
-      - consul
+      - proxysql1
     networks:
       internal:
         ipv4_address: 172.16.238.3
