@@ -1,28 +1,36 @@
 #!/bin/bash
 # encoding: UTF-8
 
-# el handler se activa si los checks pasan.
-# Usar orchestrator para hacer check del servidor ok y agregar al proxysql.
-# validar si ya esta agregado, si hay nuevos hacer load & save.
-
-exec >> /root/handler.log
+exec >> /var/log/mysql-handler.log
 
 [ $# -ge 1 -a -f "$1" ] && INPUT="$1" || INPUT="-"
 
+LOCAL_IP=$(awk 'END{print $1}' /etc/hosts)
+
+echo "MySQL-Handler Start ${LOCAL_IP} :: ************************************************"
+
 JSON=$(cat $INPUT)
+
+echo "MySQL-Json :: ${JSON}"
 
 if [[ -n "${JSON}" &&  "${JSON}" -eq "null" ]]
 then
-  echo "No data"
+  echo "MySQL-Handler Exit 1 :: No data"
   exit 1
 fi
 
 VALUES=$(echo $JSON | jq -r '.Value' | base64 --decode)
+
+echo "MySQL-Json VALUES :: ${VALUES[@]}"
+
 ARRAY=(${VALUES//,/ })
+
+echo "MySQL-Json ARRAY :: ${ARRAY[@]}"
 
 for IP in "${ARRAY[@]}"
 do
-  echo $IP
+  echo "MySQL-Handler :: MySQL Server IP Found :: ${IP}"
+  
   mysql -h 127.0.0.1 -u admin -padmin -P 6032 --force --execute="
     INSERT OR REPLACE INTO mysql_servers (
       hostgroup_id,
@@ -43,3 +51,8 @@ mysql -h 127.0.0.1 -u admin -padmin -P 6032 --execute="
   LOAD MYSQL SERVERS TO RUNTIME;
   SAVE MYSQL SERVERS TO DISK;
 "
+
+echo "MySQL-Handler End :: ************************************************"
+
+consul kv put proxysql/${LOCAL_IP}/logs/mysql-handler @/var/log/mysql-handler.log > /dev/null 2>&1
+

@@ -33,7 +33,7 @@ services:
     networks:
       - internal 
   
-  proxysql1:
+  proxysql:
     image: proxysql
     build: proxysql
     expose:
@@ -42,20 +42,7 @@ services:
     depends_on:
       - mysql
     networks:
-      internal:
-        ipv4_address: 172.16.238.2
-      
-  proxysql2:
-    image: proxysql
-    build: proxysql
-    expose:
-      - "6032"
-      - "6080"
-    depends_on:
-      - proxysql1
-    networks:
-      internal:
-        ipv4_address: 172.16.238.3
+      - internal
   
 networks:
   internal:

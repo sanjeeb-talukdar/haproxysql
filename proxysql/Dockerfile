@@ -18,11 +18,14 @@ RUN unzip /root/consul_1.4.2_linux_amd64.zip -d /root/ && \
 
 COPY config.json /etc/consul.d/config.json
 COPY entrypoint.sh /root/entrypoint.sh
-COPY handler.sh /root/handler.sh
+COPY mysql-handler.sh /root/mysql-handler.sh
+COPY proxysql-handler.sh /root/proxysql-handler.sh
 
 RUN chmod a+x /root/entrypoint.sh
-RUN chmod a+x /root/handler.sh
-RUN touch /root/handler.log
+RUN chmod a+x /root/mysql-handler.sh
+RUN chmod a+x /root/proxysql-handler.sh
+RUN touch /root/mysql-handler.log
+RUN touch /root/proxysql-handler.log
 
 RUN yum -y clean all && rm -rf /var/cache/yum/*
 

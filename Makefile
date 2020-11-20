@@ -7,7 +7,7 @@ build: ## Build the containers
 	docker-compose build $(name)
 
 up: ## Run all containers
-	docker-compose up --scale mysql=4
+	docker-compose up --scale mysql=4 --scale proxysql=4
 
 down: ## Stop all containers
 	docker-compose down

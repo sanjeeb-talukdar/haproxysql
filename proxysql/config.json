@@ -21,8 +21,8 @@
           "id":"port",
           "name":"Listen on port 6032",
           "tcp":"127.0.0.1:6032",
-          "interval":"3s",
-          "timeout":"1s"
+          "interval":"1s",
+          "timeout":"100ms"
         }
       ]
     }
@@ -31,7 +31,12 @@
     {
       "type": "key",
       "key": "mysql/servers",
-      "args": ["/root/handler.sh"]
+      "args": ["/root/mysql-handler.sh"]
+    },
+	{
+      "type": "service",
+      "service": "proxysql",
+      "args": ["/root/proxysql-handler.sh"]
     }
   ]
 }

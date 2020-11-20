@@ -109,17 +109,4 @@ mysql_replication_hostgroups =
   }
 )
 
-proxysql_servers =
-(
-    {
-        hostname="172.16.238.2"
-        port=6032
-        comment="proxysql130"
-    },
-    {
-        hostname="172.16.238.3"
-        port=6032
-        comment="proxysql131"
-    }
-)
 
