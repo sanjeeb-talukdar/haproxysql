@@ -19,7 +19,27 @@ then
   exit 1
 fi
 
-VALUES=$(echo $JSON | jq -r '.Value' | base64 --decode)
+VALUES=$(echo $JSON | jq -r '.[] | select(.Checks[0].Status != "passing") | .Node | .Address')
+
+echo "MySQL-Json INVALID IPS :: ${VALUES[@]}"
+
+ARRAY=(${VALUES//,/ })
+
+for IP in "${ARRAY[@]}"
+do
+  echo "MySQL-Handler :: MySQL Server INVALID IP Found :: ${IP}"
+  
+  mysql -h 127.0.0.1 -u admin -padmin -P 6032 --force --execute="
+    DELETE FROM mysql_servers WHERE 
+      hostname = '${IP}' AND
+      port = 3306	
+	;"
+	
+done
+
+###########################################
+
+VALUES=$(echo $JSON | jq -r '.[] | select(.Checks[0].Status == "passing") | .Node | .Address')
 
 echo "MySQL-Json VALUES :: ${VALUES[@]}"
 
@@ -29,7 +49,7 @@ echo "MySQL-Json ARRAY :: ${ARRAY[@]}"
 
 for IP in "${ARRAY[@]}"
 do
-  echo "MySQL-Handler :: MySQL Server IP Found :: ${IP}"
+  echo "MySQL-Handler :: MySQL Server VALID IPS Found :: ${IP}"
   
   mysql -h 127.0.0.1 -u admin -padmin -P 6032 --force --execute="
     INSERT OR REPLACE INTO mysql_servers (

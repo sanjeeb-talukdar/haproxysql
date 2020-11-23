@@ -19,17 +19,35 @@ then
   exit 1
 fi
 
-VALUES=$(echo $JSON | jq -r '.[] | .Node | .Address')
+VALUES=$(echo $JSON | jq -r '.[] | select(.Checks[0].Status != "passing") | .Node | .Address')
+
+echo "ProxySQL-Json INVALID IPS :: ${VALUES[@]}"
+
+ARRAY=(${VALUES//,/ })
+
+for IP in "${ARRAY[@]}"
+do
+  echo "ProxySQL-Handler :: ProxySQL Server INVALID IP Found :: ${IP}"
+  
+  mysql -h 127.0.0.1 -u admin -padmin -P 6032 --force --execute="
+    DELETE FROM proxysql_servers WHERE 
+      hostname = '${IP}' AND
+      port = 6032	
+	;"
+	
+done
+
+###############################################
+
+VALUES=$(echo $JSON | jq -r '.[] | select(.Checks[0].Status == "passing") | .Node | .Address')
 
 echo "ProxySQL-Json VALUES :: ${VALUES[@]}"
 
 ARRAY=(${VALUES//,/ })
 
-echo "ProxySQL-Json ARRAY :: ${ARRAY[@]}"
-
 for IP in "${ARRAY[@]}"
 do
-  echo "ProxySQL-Handler :: ProxySQL Server IP Found :: ${IP}"
+  echo "ProxySQL-Handler :: ProxySQL Server VALID IPS Found :: ${IP}"
   
   mysql -h 127.0.0.1 -u admin -padmin -P 6032 --force --execute="
     INSERT OR REPLACE INTO proxysql_servers (

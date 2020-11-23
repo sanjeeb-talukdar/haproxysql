@@ -5,6 +5,7 @@
   "enable_local_script_checks": true,
   "disable_update_check": true,
   "encrypt": "X4SYOinf2pTAcAHRhpj7dA==",
+  "leave_on_terminate": true,
   "node_meta":
   {
     "service": "proxysql"
@@ -17,7 +18,7 @@
     {
       "id":"proxysql",
       "name":"proxysql",
-      "checks": [
+	  "checks": [
         {
           "id":"port",
           "name":"Listen on port 6032",
@@ -30,8 +31,8 @@
   ],
   "watches": [
     {
-      "type": "key",
-      "key": "mysql/servers",
+      "type": "service",
+      "service": "mysql",
       "args": ["/root/mysql-handler.sh"]
     },
 	{
