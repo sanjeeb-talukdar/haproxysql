@@ -2,8 +2,9 @@
   "datacenter": "proxysql-sandbox",
   "data_dir": "/tmp/consul",
   "log_level": "warn",
-  "enable_script_checks": true,
+  "enable_local_script_checks": true,
   "disable_update_check": true,
+  "encrypt": "X4SYOinf2pTAcAHRhpj7dA==",
   "node_meta":
   {
     "service": "proxysql"
@@ -20,7 +21,7 @@
         {
           "id":"port",
           "name":"Listen on port 6032",
-          "tcp":"127.0.0.1:6032",
+          "tcp":"localhost:6032",
           "interval":"1s",
           "timeout":"100ms"
         }

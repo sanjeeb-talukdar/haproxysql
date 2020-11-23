@@ -9,8 +9,11 @@ build: ## Build the containers
 up: ## Run all containers
 	docker-compose up --scale mysql=4 --scale proxysql=4
 
+up-svc: ## Run specific containers
+	docker-compose up $(name)
+
 down: ## Stop all containers
-	docker-compose down
+	docker-compose down $(name)
 
 ps: ## Show status for all containers
 	docker-compose ps

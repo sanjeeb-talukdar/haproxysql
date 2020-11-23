@@ -4,6 +4,7 @@
   "log_level": "warn",
   "enable_script_checks": true,
   "disable_update_check": true,
+  "encrypt": "X4SYOinf2pTAcAHRhpj7dA==",
   "node_meta":
   {
     "service": "orchestrator"
